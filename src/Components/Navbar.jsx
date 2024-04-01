@@ -1,7 +1,18 @@
-import { NavLink } from "react-router-dom";
+import { useContext } from "react";
+import { Link, NavLink } from "react-router-dom";
+import { AuthContext } from "../Providers/AuthProvider";
 
 
 const Navbar = () => {
+    const {user, logOut} = useContext(AuthContext);
+
+    const handleLogOut = () => {
+        logOut()
+        .then( () => console.log("Successfully Log out!"))
+        .catch( err => console.error(err))
+    }
+
+
     const links = <>
     <li><NavLink to= '/'>Home</NavLink> </li>
     <li><NavLink to= '/login'>Login </NavLink> </li>
@@ -10,7 +21,7 @@ const Navbar = () => {
     
     return (
         <>
-            <div className="navbar bg-base-100">
+            <div className="navbar bg-base-100 max-w-7xl mx-auto">
                 <div className="navbar-start">
                     <div className="dropdown">
                         <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -20,7 +31,7 @@ const Navbar = () => {
                            {links}
                         </ul>
                     </div>
-                    <a className="btn btn-ghost text-xl">daisyUI</a>
+                    <a className="btn btn-ghost text-xl">React-Firebase</a>
                 </div>
                 <div className="navbar-center hidden lg:flex">
                     <ul className="menu menu-horizontal px-1">
@@ -28,7 +39,13 @@ const Navbar = () => {
                     </ul>
                 </div>
                 <div className="navbar-end">
-                    <a className="btn">Button</a>
+                { user ? <>
+                    <span>{user.email}</span>
+                    <a onClick={handleLogOut} className="btn btn-sm ml-3">Sign Out</a>
+                </> 
+                : 
+                <Link to='/login'> <button className="btn btn-sm ml-3">Log In</button></Link>
+                }
                 </div>
             </div>
         </>
