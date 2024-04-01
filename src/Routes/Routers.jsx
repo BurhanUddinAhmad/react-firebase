@@ -4,6 +4,9 @@ import ErrorPage from "../Pages/ErrorPage";
 import Home from "../Pages/Home";
 import Login from "../Pages/Login";
 import Register from "../Pages/Register";
+import Orders from "../Pages/Orders";
+import PrivateRoutes from "./PrivateRoutes";
+import Profile from "../Pages/Profile";
 
 export const routers = createBrowserRouter([
     {
@@ -22,6 +25,14 @@ export const routers = createBrowserRouter([
             {
                 path: '/register',
                 element: <Register/>
+            },
+            {
+                path: '/profile',
+                element: <PrivateRoutes> <Profile/> </PrivateRoutes>
+            },
+            {
+                path: '/orders',
+                element: <PrivateRoutes> <Orders/> </PrivateRoutes>
             }
         ]
     }
