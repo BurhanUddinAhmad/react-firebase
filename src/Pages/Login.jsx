@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../Providers/AuthProvider";
 
@@ -6,7 +6,10 @@ import { AuthContext } from "../Providers/AuthProvider";
 
 const Login = () => {
     const navigate = useNavigate();
-    const {signInUser, googleSignIn} = useContext(AuthContext);
+    const {signInUser, googleSignIn, resetPassword} = useContext(AuthContext);
+    const emailRef = useRef();
+    const [success, setSuccess] = useState('');
+    const [logError, setLogError] = useState('');
 
     const handleLogin = e => {
         e.preventDefault();
@@ -14,19 +17,42 @@ const Login = () => {
         const password = e.target.password.value;
         console.log(email, password);
 
+        // reset state
+        setSuccess('');
+        setLogError('')
+
         signInUser(email, password)
         .then( res => {
             console.log(res.user);
+            if(res.user.emailVerified) {
+                setSuccess('Login Successfully!');
+                navigate('/');
+            } else {
+                setLogError('Please verify your email!');
+            }
             e.target.reset();
-            navigate('/');
         })
-        .catch(err => console.error(err))
+        .catch(err => setLogError(err))
     }
 
     const handleGoogleSignIn = () => {
         googleSignIn()
-        .then(() => console.log('success'))
-        .catch(err => console.error(err))
+        .then(() => setSuccess('Login success'))
+        .catch(err => setLogError(err))
+    }
+
+    const handlePasswordReset = () => {
+        const email = emailRef.current.value;
+        if (!email) {
+            setLogError('pelase provide an email');
+            return;
+        }
+        else if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            setLogError('please write a valid email')
+            return;
+        }
+        resetPassword(email);
+        setSuccess('Please check your email!');
     }
     return (
         <>
@@ -37,11 +63,13 @@ const Login = () => {
                     </div>
                     <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
                         <form onSubmit={handleLogin} className="card-body">
+                            {success && <p className="text-green-500">{success}</p> }
+                            {logError && <p className="text-red-500">{logError}</p> }
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Email</span>
                                 </label>
-                                <input type="email" name="email" placeholder="email" className="input input-bordered" required />
+                                <input ref={emailRef} type="email" name="email" placeholder="email" className="input input-bordered" required />
                             </div>
                             <div className="form-control">
                                 <label className="label">
@@ -49,7 +77,7 @@ const Login = () => {
                                 </label>
                                 <input type="password" name="password" placeholder="password" className="input input-bordered" required />
                                 <label className="label">
-                                    <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
+                                    <a onClick={handlePasswordReset} className="label-text-alt link link-hover">Forgot password?</a>
                                 </label>
                             </div>
                             <div className="form-control mt-6">

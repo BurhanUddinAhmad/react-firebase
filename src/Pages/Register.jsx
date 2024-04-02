@@ -3,10 +3,12 @@ import { Link } from "react-router-dom";
 import { AuthContext } from "../Providers/AuthProvider";
 import { FaRegEye } from "react-icons/fa";
 import { FaRegEyeSlash } from "react-icons/fa";
+import { sendEmailVerification } from "firebase/auth";
 
 const Register = () => {
     const { createUser } = useContext(AuthContext);
     const [regError, setRegError] = useState('');
+    const [success, setSuccess] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
     const handleRegister = e => {
@@ -19,6 +21,7 @@ const Register = () => {
 
         // reset state 
         setRegError('');
+        setSuccess('');
 
         if (password.length < 6) {
             setRegError('Password should be 6 characters or longer!');
@@ -35,10 +38,17 @@ const Register = () => {
         createUser(email, password)
             .then(result => {
                 console.log(result.user);
+                sendEmailVerification(result.user)
+                .then(() => {
+                    setSuccess('Check and verify your email');
+                })
+                .catch(err => setRegError(err))
+                setSuccess('User created successfully');
                 e.target.reset();
             })
             .catch(err => {
                 console.error(err);
+                setRegError(err.message);
             })
     }
     return (
@@ -51,6 +61,7 @@ const Register = () => {
                     <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
                         <form onSubmit={handleRegister} className="card-body">
                             {regError && <p className='text-red-500'>{regError}</p>}
+                            {success && <p className='text-green-500'>{success}</p>}
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Name</span>
