@@ -1,9 +1,12 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../Providers/AuthProvider";
+import { FaRegEye } from "react-icons/fa";
+import { FaRegEyeSlash } from "react-icons/fa";
 
 const Register = () => {
-    const {createUser} = useContext(AuthContext);
+    const { createUser } = useContext(AuthContext);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleRegister = e => {
         e.preventDefault();
@@ -14,12 +17,12 @@ const Register = () => {
 
         // create user in firebase
         createUser(email, password)
-        .then(result => {
-            console.log(result.user);
-        })
-        .catch( err => {
-            console.error(err);
-        })
+            .then(result => {
+                console.log(result.user);
+            })
+            .catch(err => {
+                console.error(err);
+            })
     }
     return (
         <>
@@ -46,7 +49,10 @@ const Register = () => {
                                 <label className="label">
                                     <span className="label-text">Password</span>
                                 </label>
-                                <input type="password" name="password" placeholder="password" className="input input-bordered" required />
+                                <input type={showPassword ? "text" : "password"} name="password" placeholder="password" className="input input-bordered" required />
+                                <span onClick={() => setShowPassword(!showPassword)}>
+                                    {showPassword ? <FaRegEyeSlash /> : <FaRegEye />}
+                                </span>
                                 <label className="label">
                                     <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
                                 </label>
