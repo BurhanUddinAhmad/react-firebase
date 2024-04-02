@@ -6,6 +6,7 @@ import { FaRegEyeSlash } from "react-icons/fa";
 
 const Register = () => {
     const { createUser } = useContext(AuthContext);
+    const [regError, setRegError] = useState('');
     const [showPassword, setShowPassword] = useState(false);
 
     const handleRegister = e => {
@@ -13,12 +14,28 @@ const Register = () => {
         const name = e.target.name.value;
         const email = e.target.email.value;
         const password = e.target.password.value;
+        const checked = e.target.terms.checked;
         console.log(name, email, password);
+
+        // reset state 
+        setRegError('');
+
+        if (password.length < 6) {
+            setRegError('Password should be 6 characters or longer!');
+            return;
+        } else if (!/[A-Z]/.test(password)) {
+            setRegError('password should have uppercase!');
+            return;
+        } else if (!checked) {
+            setRegError('Please accept our Terms!')
+            return;
+        }
 
         // create user in firebase
         createUser(email, password)
             .then(result => {
                 console.log(result.user);
+                e.target.reset();
             })
             .catch(err => {
                 console.error(err);
@@ -33,6 +50,7 @@ const Register = () => {
                     </div>
                     <div className="card shrink-0 w-full max-w-sm shadow-2xl bg-base-100">
                         <form onSubmit={handleRegister} className="card-body">
+                            {regError && <p className='text-red-500'>{regError}</p>}
                             <div className="form-control">
                                 <label className="label">
                                     <span className="label-text">Name</span>
@@ -56,6 +74,10 @@ const Register = () => {
                                 <label className="label">
                                     <a href="#" className="label-text-alt link link-hover">Forgot password?</a>
                                 </label>
+                            </div>
+                            <div>
+                                <input type="checkbox" name="terms" id="terms" />
+                                <label htmlFor="terms"> I accept your terms</label>
                             </div>
                             <div className="form-control mt-6">
                                 <button className="btn btn-primary">Register</button>
